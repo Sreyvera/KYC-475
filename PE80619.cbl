@@ -263,18 +263,14 @@
              05 T1R                      PIC 9(4) COMP-3 VALUE ZEROS.
              05 DIFERENTE                PIC 9    COMP-3 VALUE ZEROS.
              05 CON-56-57-58             PIC 9(4) COMP-3 VALUE ZEROS.
-             05 CON-58                   PIC 9(4) COMP-3 VALUE ZEROS.
              05 CON-59                   PIC 9(4) COMP-3 VALUE ZEROS.
              05 VEZ                      PIC 9(4) COMP-3 VALUE ZEROS.
              05 VECES                    PIC 9(4) COMP-3 VALUE ZEROS.
              05 VECES2                   PIC 9(4) COMP-3 VALUE ZEROS.
              05 ITERO                    PIC 9(5) COMP-3 VALUE ZEROS.
              05 SALIR                    PIC 9(2) COMP-3 VALUE ZEROS.
-             05 PRIMER-5859              PIC 9(5) COMP-3 VALUE ZEROS.
-             05 ULTIMO-57                PIC 9(5) COMP-3 VALUE ZEROS.
              05 VALIDA                   PIC 9(5) COMP-3 VALUE ZEROS.
              05 REG-EN-TABLA             PIC 9(4) COMP-3 VALUE ZEROS.
-             05 CONTADOR-56-57-58        PIC 9(4) COMP-3 VALUE ZEROS.
              05 CONTADOR-59              PIC 9(4) COMP-3 VALUE ZEROS.
 
            05 WS-FECHA-ALTA.
@@ -423,6 +419,7 @@
            02  WRK-DISP-REG    PIC Z(09)9.
 
        01  WS-FIN-ENTRADA      PIC 9(01)  VALUE ZEROS.
+       01  WS-BUCLE-10         PIC 9(02)  VALUE ZEROS.
        01  REG-ESCRITO         PIC 9(01)  VALUE ZEROS.
        01  CONTADORES.
            03  REG-LEIDOS      PIC 9(10)  COMP VALUE ZEROS.
@@ -523,7 +520,12 @@ MOD   *==== ============================================================
       *-----------------------------------------------------------------
       *
            PERFORM INICIO.
-           PERFORM TRATAMIENTO UNTIL WS-FIN-ENTRADA = 1.
+           PERFORM VARYING WS-BUCLE-10 FROM 1 BY 1
+                   UNTIL WS-BUCLE-10 > 10
+                      OR WS-FIN-ENTRADA = 1
+               PERFORM TRATAMIENTO UNTIL WS-FIN-ENTRADA = 1
+                                       OR WS-PE8062I-ORDEN <> WS-BUCLE-10
+           END-PERFORM
            PERFORM FIN-PROCESO.
 
       *=================================================================
@@ -545,11 +547,8 @@ MOD   *==== ============================================================
 
        TRATAMIENTO.
            MOVE    0             TO   REG-ESCRITO
-           MOVE    0             TO   REG-EN-TABLA CON-56-57-58 CON-58
-                                      CONTADOR-56-57-58
+           MOVE    0             TO   REG-EN-TABLA CON-56-57-58
                                       DIFERENTE
-                                      PRIMER-5859
-                                      ULTIMO-57
            MOVE    1             TO   T1R VECES
 
            PERFORM  LLENA-TR1 UNTIL   DIFERENTE       = 1
@@ -611,6 +610,7 @@ MOD   *==== ============================================================
 
               IF W-SUMA-ACTUAL > 25
                 MOVE TITREA-1(VECES) TO WSS-PE8062O
+                MOVE T1R-PE8062I-ORDEN(VECES) TO WSS-PE8062O-ORDEN
                 PERFORM ESCRIBE-SALIDA-UNO
               END-IF
               PERFORM VARYING ITERO FROM 1 BY 1 UNTIL ITERO > T1R
@@ -630,6 +630,7 @@ MOD   *==== ============================================================
                   END-IF
                   IF W-SUMA-ACTUAL > 25
                     MOVE TITREA-1(VECES) TO TITREA-SAL(VEZ)
+                    MOVE T1R-PE8062I-ORDEN(VECES) TO SAL-PE8062I-ORDEN(VEZ)
                     MOVE W-FECALTA TO SAL-PE8062I-FECALTA(VEZ)
                     MOVE W-FECBAJA TO SAL-PE8062I-FECBAJA(VEZ)
                     MOVE W-SUMA-ACTUAL  TO SAL-PE8062I-PORPARTEMP(VEZ)

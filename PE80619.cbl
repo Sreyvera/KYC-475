@@ -71,12 +71,12 @@
        FD  PE0001R     BLOCK CONTAINS 0 CHARACTERS
                         RECORDING MODE F
                         LABEL RECORDS STANDARD.
-       01  REG-1R                  PIC  X(99).
+       01  REG-1R                  PIC  X(101).
       *
        FD  PE0001W     BLOCK CONTAINS 0 CHARACTERS
                         RECORDING MODE F
                         LABEL RECORDS STANDARD.
-       01  REG-1W                  PIC  X(99).
+       01  REG-1W                  PIC  X(101).
 
 
       *=================================================================
@@ -194,6 +194,7 @@
              07 WS-PE8062I-HORULTACT PIC X(8).
              07 WS-PE8062I-CODTERMINA PIC X(8).
              07 WS-PE8062I-CODUSUARIO PIC X(8).
+             07 WS-PE8062I-ORDEN    PIC 9(2).
 
            05 WSS-PE8062O.
              07 WSS-PE8062O-NUMPERSEMP PIC S9(9) COMP.
@@ -209,6 +210,7 @@
              07 WSS-PE8062O-HORULTACT PIC X(8).
              07 WSS-PE8062O-CODTERMINA PIC X(8).
              07 WSS-PE8062O-CODUSUARIO PIC X(8).
+             07 WSS-PE8062O-ORDEN   PIC 9(2).
 
            05 WS1-PE8062I.
              07 WS1-PE8062I-NUMPERSEMP PIC 9(9).
@@ -224,6 +226,7 @@
              07 WS1-PE8062I-HORULTACT PIC X(8).
              07 WS1-PE8062I-CODTERMINA PIC X(8).
              07 WS1-PE8062I-CODUSUARIO PIC X(8).
+             07 WS1-PE8062I-ORDEN   PIC 9(2).
 
              05 TITREA-1 OCCURS 5000 TIMES.
                07 T1R-PE8062I-NUMPERSEMP PIC S9(9) COMP.
@@ -239,6 +242,7 @@
                07 T1R-PE8062I-HORULTACT  PIC X(8).
                07 T1R-PE8062I-CODTERMINA PIC X(8).
                07 T1R-PE8062I-CODUSUARIO PIC X(8).
+               07 T1R-PE8062I-ORDEN PIC 9(2).
 
              05 TITREA-SAL OCCURS 5000 TIMES.
                07 SAL-PE8062I-NUMPERSEMP PIC S9(9) COMP.
@@ -254,6 +258,7 @@
                07 SAL-PE8062I-HORULTACT  PIC X(8).
                07 SAL-PE8062I-CODTERMINA PIC X(8).
                07 SAL-PE8062I-CODUSUARIO PIC X(8).
+               07 SAL-PE8062I-ORDEN PIC 9(2).
 
              05 T1R                      PIC 9(4) COMP-3 VALUE ZEROS.
              05 DIFERENTE                PIC 9    COMP-3 VALUE ZEROS.

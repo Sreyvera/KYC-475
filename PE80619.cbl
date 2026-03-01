@@ -71,12 +71,12 @@
        FD  PE0001R     BLOCK CONTAINS 0 CHARACTERS
                         RECORDING MODE F
                         LABEL RECORDS STANDARD.
-       01  REG-1R                  PIC  X(101).
+       01  REG-1R                  PIC  X(99).
       *
        FD  PE0001W     BLOCK CONTAINS 0 CHARACTERS
                         RECORDING MODE F
                         LABEL RECORDS STANDARD.
-       01  REG-1W                  PIC  X(101).
+       01  REG-1W                  PIC  X(99).
 
 
       *=================================================================
@@ -180,7 +180,6 @@
            05 W-FEC-BAJA               PIC X(10).
            05 W-TRE-TIPO.
               10 W-TRE-TIPO-N        PIC 9.
-           05 W-OCURRENCIA-BUCLE     PIC 9(2).
            05 WS-PE8062I.
              07 WS-PE8062I-NUMPERSEMP PIC S9(9) COMP.
              07 WS-PE8062I-NUMPERSACC PIC S9(9) COMP.
@@ -195,7 +194,6 @@
              07 WS-PE8062I-HORULTACT PIC X(8).
              07 WS-PE8062I-CODTERMINA PIC X(8).
              07 WS-PE8062I-CODUSUARIO PIC X(8).
-             07 WS-PE8062I-ORDEN      PIC 9(2).
 
            05 WSS-PE8062O.
              07 WSS-PE8062O-NUMPERSEMP PIC S9(9) COMP.
@@ -211,7 +209,6 @@
              07 WSS-PE8062O-HORULTACT PIC X(8).
              07 WSS-PE8062O-CODTERMINA PIC X(8).
              07 WSS-PE8062O-CODUSUARIO PIC X(8).
-             07 WSS-PE8062O-ORDEN      PIC 9(2).
 
            05 WS1-PE8062I.
              07 WS1-PE8062I-NUMPERSEMP PIC 9(9).
@@ -227,7 +224,6 @@
              07 WS1-PE8062I-HORULTACT PIC X(8).
              07 WS1-PE8062I-CODTERMINA PIC X(8).
              07 WS1-PE8062I-CODUSUARIO PIC X(8).
-             07 WS1-PE8062I-ORDEN      PIC 9(2).
 
              05 TITREA-1 OCCURS 5000 TIMES.
                07 T1R-PE8062I-NUMPERSEMP PIC S9(9) COMP.
@@ -243,7 +239,6 @@
                07 T1R-PE8062I-HORULTACT  PIC X(8).
                07 T1R-PE8062I-CODTERMINA PIC X(8).
                07 T1R-PE8062I-CODUSUARIO PIC X(8).
-               07 T1R-PE8062I-ORDEN      PIC 9(2).
 
              05 TITREA-SAL OCCURS 5000 TIMES.
                07 SAL-PE8062I-NUMPERSEMP PIC S9(9) COMP.
@@ -259,7 +254,6 @@
                07 SAL-PE8062I-HORULTACT  PIC X(8).
                07 SAL-PE8062I-CODTERMINA PIC X(8).
                07 SAL-PE8062I-CODUSUARIO PIC X(8).
-               07 SAL-PE8062I-ORDEN      PIC 9(2).
 
              05 T1R                      PIC 9(4) COMP-3 VALUE ZEROS.
              05 DIFERENTE                PIC 9    COMP-3 VALUE ZEROS.
@@ -557,10 +551,7 @@ MOD   *==== ============================================================
                               OR      WS-FIN-ENTRADA  = 1
 
            IF      CON-56-57-58     >    0
-                   PERFORM VARYING W-OCURRENCIA-BUCLE FROM 1 BY 1
-                           UNTIL W-OCURRENCIA-BUCLE > 10
-                      PERFORM  GRABA-56-57-58
-                   END-PERFORM
+                   PERFORM  GRABA-56-57-58
            END-IF
 
            PERFORM  PREP-T1R        VARYING VECES FROM 1 BY 1
@@ -609,50 +600,42 @@ MOD   *==== ============================================================
 
            PERFORM VARYING VECES FROM 1 BY 1 UNTIL VECES > T1R
 
-              IF T1R-PE8062I-ORDEN(VECES) = W-OCURRENCIA-BUCLE
-                MOVE T1R-PE8062I-PORPARTEMP(VECES) TO W-SUMA-ACTUAL
-                MOVE T1R-PE8062I-FECALTA(VECES)    TO W-FECALTA
-                MOVE T1R-PE8062I-FECBAJA(VECES)    TO W-FECBAJA
+              MOVE T1R-PE8062I-PORPARTEMP(VECES) TO W-SUMA-ACTUAL
+              MOVE T1R-PE8062I-FECALTA(VECES)    TO W-FECALTA
+              MOVE T1R-PE8062I-FECBAJA(VECES)    TO W-FECBAJA
 
-                IF W-SUMA-ACTUAL > 25
-                  MOVE TITREA-1(VECES) TO WSS-PE8062O
-                  MOVE T1R-PE8062I-ORDEN(VECES)
-                    TO WSS-PE8062O-ORDEN
-                  PERFORM ESCRIBE-SALIDA-UNO
-                END-IF
+              IF W-SUMA-ACTUAL > 25
+                MOVE TITREA-1(VECES) TO WSS-PE8062O
+                PERFORM ESCRIBE-SALIDA-UNO
+              END-IF
+              PERFORM VARYING ITERO FROM 1 BY 1 UNTIL ITERO > T1R
+                IF ITERO NOT EQUAL VECES
+                  IF  W-FECALTA <= T1R-PE8062I-FECBAJA(ITERO)
+                  AND W-FECBAJA >= T1R-PE8062I-FECALTA(ITERO)
+                    ADD T1R-PE8062I-PORPARTEMP(ITERO) TO W-SUMA-ACTUAL
 
-                PERFORM VARYING ITERO FROM 1 BY 1 UNTIL ITERO > T1R
-                  IF ITERO NOT EQUAL VECES
-                  AND T1R-PE8062I-ORDEN(ITERO) = W-OCURRENCIA-BUCLE
-                    IF  W-FECALTA <= T1R-PE8062I-FECBAJA(ITERO)
-                    AND W-FECBAJA >= T1R-PE8062I-FECALTA(ITERO)
-                      ADD T1R-PE8062I-PORPARTEMP(ITERO) TO W-SUMA-ACTUAL
 
-                      IF T1R-PE8062I-FECALTA(ITERO) >= W-FECALTA
-                        MOVE T1R-PE8062I-FECALTA(ITERO) TO W-FECALTA
-                      END-IF
-
-                      IF T1R-PE8062I-FECBAJA(ITERO) <= W-FECBAJA
-                        MOVE T1R-PE8062I-FECBAJA(ITERO) TO W-FECBAJA
-                      END-IF
+                    IF T1R-PE8062I-FECALTA(ITERO) >= W-FECALTA
+                      MOVE T1R-PE8062I-FECALTA(ITERO) TO W-FECALTA
                     END-IF
 
-                    IF W-SUMA-ACTUAL > 25
-                      MOVE TITREA-1(VECES) TO TITREA-SAL(VEZ)
-                      MOVE T1R-PE8062I-ORDEN(VECES)
-                        TO SAL-PE8062I-ORDEN(VEZ)
-                      MOVE W-FECALTA TO SAL-PE8062I-FECALTA(VEZ)
-                      MOVE W-FECBAJA TO SAL-PE8062I-FECBAJA(VEZ)
-                      MOVE W-SUMA-ACTUAL  TO SAL-PE8062I-PORPARTEMP(VEZ)
-                      PERFORM ESCRIBE-SALIDA
-                      MOVE T1R-PE8062I-FECALTA(VECES)    TO W-FECALTA
-                      MOVE T1R-PE8062I-FECBAJA(VECES)    TO W-FECBAJA
-                      MOVE T1R-PE8062I-PORPARTEMP(VECES) TO W-SUMA-ACTUAL
-                      ADD 1 TO VEZ
+                    IF T1R-PE8062I-FECBAJA(ITERO) <= W-FECBAJA
+                      MOVE T1R-PE8062I-FECBAJA(ITERO) TO W-FECBAJA
                     END-IF
                   END-IF
-                END-PERFORM
-              END-IF
+                  IF W-SUMA-ACTUAL > 25
+                    MOVE TITREA-1(VECES) TO TITREA-SAL(VEZ)
+                    MOVE W-FECALTA TO SAL-PE8062I-FECALTA(VEZ)
+                    MOVE W-FECBAJA TO SAL-PE8062I-FECBAJA(VEZ)
+                    MOVE W-SUMA-ACTUAL  TO SAL-PE8062I-PORPARTEMP(VEZ)
+                    PERFORM ESCRIBE-SALIDA
+                    MOVE T1R-PE8062I-FECALTA(VECES)    TO W-FECALTA
+                    MOVE T1R-PE8062I-FECBAJA(VECES)    TO W-FECBAJA
+                    MOVE T1R-PE8062I-PORPARTEMP(VECES) TO W-SUMA-ACTUAL
+                    ADD 1 TO VEZ
+                  END-IF
+                END-IF
+              END-PERFORM
            END-PERFORM.
 
       *=================================================================
